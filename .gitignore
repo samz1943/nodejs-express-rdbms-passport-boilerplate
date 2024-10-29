@@ -1,0 +1,41 @@
+# Node.js modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Mac system files
+.DS_Store
+
+# Environment files
+.env
+.env.test
+.env.production
+.env.*.local
+
+# Database and storage
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.sql
+.dump
+
+# Logs and temp files
+*.log
+*.out
+*.err
+*.tgz
+*.tar.gz
+*.zip
+
+# VS Code files (if using VS Code)
+.vscode/
+
+# IDE files
+.idea/
