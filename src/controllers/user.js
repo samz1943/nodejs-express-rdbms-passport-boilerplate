@@ -15,10 +15,10 @@ exports.createUser = async (req, res) => {
 
         const response = responseFormatter(201, formattedUser, 'User registered successfully');
 
-        logger.info(response);
+        logger.info(response.data);
         res.status(201).json(response);
     } catch (error) {
-        logger.error(`Error: ${err.message}`);
+        logger.error(`Error: ${error.message}`);
         res.status(400).json({ error: error.message });
     }
 };
@@ -37,10 +37,10 @@ exports.getUserById = async (req, res) => {
         const formattedUser = userResponse(user);
         const response = responseFormatter(200, formattedUser);
 
-        logger.info(response);
+        logger.info(response.data);
         res.status(200).json(response);
     } catch (error) {
-        logger.error(`Error: ${err.message}`);
+        logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
     }
 };
@@ -64,10 +64,10 @@ exports.getAllUsers = async (req, res) => {
             currentPage: paginationResult.currentPage,
         });
 
-        logger.info(response);
+        logger.info(response.data);
         res.status(200).json(response);
     } catch (error) {
-        logger.error(`Error: ${err.message}`);
+        logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
     }
 };
@@ -90,10 +90,10 @@ exports.updateUser = async (req, res) => {
         const formattedUser = userResponse(user);
         const response = responseFormatter(200, formattedUser);
 
-        logger.info(response);
+        logger.info(response.data);
         res.status(200).json(response);
     } catch (error) {
-        logger.error(`Error: ${err.message}`);
+        logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
     }
 };
