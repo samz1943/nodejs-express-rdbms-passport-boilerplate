@@ -85,3 +85,57 @@ exports.getAllPosts = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.updatePost = async (req, res) => {
+    logger.http(`${req.method} ${req.url}`);
+    try {
+        const { id } = req.params;
+        const { title, content } = req.body;
+
+        const post = await Post.findByPk(id, {
+            include: {
+                model: User,
+                as: 'user',
+                attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
+            }
+        });
+
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        post.title = title;
+        post.content = content;
+        post.save();
+
+        const formattedPost = postResponse(post);
+        const response = responseFormatter(200, formattedPost);
+
+        logger.info(response.data);
+        res.status(200).json(response);
+    } catch (error) {
+        logger.error(`Error: ${error.message}`);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.deletePost = async (req, res) => {
+    logger.http(`${req.method} ${req.url}`);
+    try {
+        const { id } = req.params;
+
+        const post = await Post.findByPk(id);
+
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        post.destroy();
+
+        // logger.info(response.data);
+        res.status(204).json();
+    } catch (error) {
+        logger.error(`Error: ${error.message}`);
+        res.status(500).json({ error: error.message });
+    }
+};

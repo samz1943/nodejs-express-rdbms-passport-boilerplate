@@ -19,6 +19,17 @@ const postResponse = (post) => {
     };
 };
 
+const commentResponse = (comment) => {
+    return {
+        id: comment.id,
+        content: comment.content,
+        post: postResponse(comment.post),
+        commentBy: userResponse(comment.user),
+        createdAt: comment.createdAt.toISOString(),
+        updatedAt: comment.updatedAt.toISOString(),
+    };
+};
+
 const responseFormatter = (status, data = null, message = null, errors = null) => {
     const response = {
         status,
@@ -30,5 +41,5 @@ const responseFormatter = (status, data = null, message = null, errors = null) =
     return response;
 };
 
-module.exports = { userResponse, postResponse, responseFormatter};
+module.exports = { userResponse, postResponse, commentResponse, responseFormatter};
   

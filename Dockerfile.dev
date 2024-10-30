@@ -13,8 +13,11 @@ RUN npm install
 # Step 5: Copy the rest of your application code
 COPY . .
 
-# Step 6: Install nodemon globally for live-reloading
+# Step 7: Start the application with nodemon
 RUN npm install -g nodemon
 
+# Expose the port your app runs on
+EXPOSE ${APP_PORT}
+
 # Step 7: Start the application with nodemon
-CMD ["nodemon", "-L", "src/index.js"]
+CMD ["nodemon", "--legacy-watch"]

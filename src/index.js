@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
+const passport = require('./config/passport')
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const router = require('./routes/index')
@@ -14,6 +15,7 @@ const PORT = process.env.APP_PORT || 3000;
 app.use(express.json())
 app.use(cors())
 app.use(helmet())
+app.use(passport.initialize())
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
