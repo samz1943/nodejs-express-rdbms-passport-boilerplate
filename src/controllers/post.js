@@ -27,9 +27,9 @@ exports.createPost = async (req, res) => {
 exports.getPostById = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {
-        const { id } = req.params;
+        const { postId } = req.params;
 
-        const post = await Post.findByPk(id, {
+        const post = await Post.findByPk(postId, {
             include: {
                 model: User,
                 as: 'user',
@@ -89,10 +89,10 @@ exports.getAllPosts = async (req, res) => {
 exports.updatePost = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {
-        const { id } = req.params;
+        const { postId } = req.params;
         const { title, content } = req.body;
 
-        const post = await Post.findByPk(id, {
+        const post = await Post.findByPk(postId, {
             include: {
                 model: User,
                 as: 'user',
@@ -122,9 +122,9 @@ exports.updatePost = async (req, res) => {
 exports.deletePost = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {
-        const { id } = req.params;
+        const { postId } = req.params;
 
-        const post = await Post.findByPk(id);
+        const post = await Post.findByPk(postId);
 
         if (!post) {
             return res.status(404).json({ error: 'Post not found' });

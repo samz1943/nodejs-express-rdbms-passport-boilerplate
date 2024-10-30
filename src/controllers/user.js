@@ -26,9 +26,9 @@ exports.createUser = async (req, res) => {
 exports.getUserById = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {
-        const { id } = req.params;
+        const { userId } = req.params;
 
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(userId);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -75,10 +75,10 @@ exports.getAllUsers = async (req, res) => {
 exports.updateUser = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {
-        const { id } = req.params;
+        const { userId } = req.params;
         const { username } = req.body;
 
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(userId);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });

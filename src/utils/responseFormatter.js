@@ -3,8 +3,6 @@ const userResponse = (user) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
     };
 };
 
@@ -23,7 +21,7 @@ const commentResponse = (comment) => {
     return {
         id: comment.id,
         content: comment.content,
-        post: postResponse(comment.post),
+        post_id: comment.post_id,
         commentBy: userResponse(comment.user),
         createdAt: comment.createdAt.toISOString(),
         updatedAt: comment.updatedAt.toISOString(),

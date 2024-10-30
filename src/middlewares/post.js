@@ -1,11 +1,11 @@
 const { Post } = require('../models');
 
 const checkPostOwner = async (req, res, next) => {
-    const { id } = req.params;
+    const { postId } = req.params;
     const userId = req.user.id;
 
     try {
-        const post = await Post.findByPk(id);
+        const post = await Post.findByPk(postId);
 
         if (!post) {
             return res.status(404).json({ error: 'Post not found' });

@@ -8,9 +8,9 @@ const postValidator = require('../validators/post')
 
 router.post('/', authenticate, postValidator, postController.createPost);
 router.get('/',  authenticate, postController.getAllPosts);
-router.get('/:id',  authenticate, postController.getPostById);
-router.put('/:id',  authenticate, postValidator, postMiddleware, postController.updatePost);
-router.delete('/:id',  authenticate, postMiddleware, postController.deletePost);
+router.get('/:postId',  authenticate, postController.getPostById);
+router.put('/:postId',  authenticate, postValidator, postMiddleware, postController.updatePost);
+router.delete('/:postId',  authenticate, postMiddleware, postController.deletePost);
 
 router.use('/:id/comment', commentRouter)
 
