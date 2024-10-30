@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker');
 module.exports = {
   async up (queryInterface, Sequelize) {
     const fakeUsers = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 10; i++) {
       fakeUsers.push({
         username: faker.internet.username(),
         email: faker.internet.email(),
