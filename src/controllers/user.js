@@ -1,27 +1,8 @@
-const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const { User } = require('../models');
 const { Op } = require('sequelize');
 const { userResponse, responseFormatter} = require('../utils/responseFormatter');
 const paginate = require('../utils/pagination');
-
-exports.createUser = async (req, res) => {
-    logger.http(`${req.method} ${req.url}`);
-    try {
-        const { username, email, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({ username, email, password: hashedPassword });
-        const formattedUser = userResponse(user);
-
-        const response = responseFormatter(201, formattedUser, 'User registered successfully');
-
-        logger.info(response.data);
-        res.status(201).json(response);
-    } catch (error) {
-        logger.error(`Error: ${error.message}`);
-        res.status(400).json({ error: error.message });
-    }
-};
 
 exports.getUserById = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);

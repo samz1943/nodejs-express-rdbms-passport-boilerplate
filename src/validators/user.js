@@ -5,16 +5,6 @@ const userSchema = Joi.object({
         .alphanum()
         .min(3)
         .required(),
-
-    email: Joi.string()
-        .email()
-        .required(),
-
-    password: Joi.string()
-        .min(6)
-        .required(),
-
-    repeat_password: Joi.ref('password'),
 });
 
 const validateUser = (req, res, next) => {

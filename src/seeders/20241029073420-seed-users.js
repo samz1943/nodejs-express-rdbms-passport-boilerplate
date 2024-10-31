@@ -12,6 +12,7 @@ module.exports = {
         username: faker.internet.username(),
         email: faker.internet.email(),
         password: await bcrypt.hash(faker.internet.password(), 10),
+        isVerified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -22,6 +23,7 @@ module.exports = {
         username: 'user1',
         email: 'user1@example.com',
         password: await bcrypt.hash('1234', 10),
+        isVerified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -29,6 +31,7 @@ module.exports = {
         username: 'user2',
         email: 'user2@example.com',
         password: await bcrypt.hash('1234', 10),
+        isVerified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

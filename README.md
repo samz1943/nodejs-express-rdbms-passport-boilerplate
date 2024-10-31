@@ -24,7 +24,7 @@ A boilerplate/starter project for quickly building RESTful APIs using Node.js, E
 
 ## Initialize  database
 - Create database and run migration
-- Create seeding for data
+- Create seeding for data  
   `node resetDatabase.js`
 
 ## Run the node server
