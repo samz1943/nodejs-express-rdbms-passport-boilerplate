@@ -10,7 +10,7 @@ const logger = require('./utils/logger');
 
 dotenv.config();
 const app = express();
-const PORT = process.env.APP_PORT || 3000;
+const port = process.env.APP_PORT || 3000;
 
 app.use(express.json())
 app.use(cors())
@@ -28,6 +28,8 @@ app.use(compression())
 
 app.use('/api', router)
 
-app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`);
+app.listen(port, () => {
+    logger.info(`Server running on port ${port}`);
 });
+
+module.exports = app;

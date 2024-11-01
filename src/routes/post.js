@@ -1,10 +1,11 @@
 const express = require('express');
-const router = express.Router();
 const commentRouter = require('./comment')
 const authenticate = require('../middlewares/auth')
 const postMiddleware = require('../middlewares/post')
 const postController = require('../controllers/post')
 const postValidator = require('../validators/post')
+
+const router = express.Router();
 
 router.post('/', authenticate, postValidator, postController.createPost);
 router.get('/',  authenticate, postController.getAllPosts);

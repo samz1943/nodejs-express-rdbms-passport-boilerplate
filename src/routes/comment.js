@@ -1,9 +1,10 @@
 const express = require('express');
-const router = express.Router({ mergeParams: true });
 const authenticate = require('../middlewares/auth')
 const commentMiddleware = require('../middlewares/comment')
 const commentController = require('../controllers/comment')
 const commentValidator = require('../validators/comment')
+
+const router = express.Router({ mergeParams: true });
 
 router.post('/', authenticate, commentValidator, commentController.createComment);
 router.get('/',  authenticate, commentController.getPostComments);
