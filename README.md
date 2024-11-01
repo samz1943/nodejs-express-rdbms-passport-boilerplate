@@ -14,6 +14,8 @@ A boilerplate/starter project for quickly building RESTful APIs using Node.js, E
 - Dontenv
 - Rate-Limit
 - Logger
+- Nodemailer
+- Mocha
 
 ## Installation
 
