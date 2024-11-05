@@ -63,23 +63,7 @@ exports.getAllPosts = async (req, res) => {
         }
 
         const paginationResult = await paginate(Post, query, page, limit);
-        const formattedPosts = await Promise.all(
-            paginationResult.items.map(async (post) => {
-                const user = await User.findByPk(post.user_id, {
-                    attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-                });
-                return postResponse({ ...post.toJSON(), user });
-            })
-        );
-
-        const response = responseFormatter(200, formattedPosts, 'Posts retrieved successfully', {
-            totalItems: paginationResult.totalItems,
-            totalPages: paginationResult.totalPages,
-            currentPage: paginationResult.currentPage,
-        });
-
-        logger.info(response.data);
-        res.status(200).json(response);
+        res.status(200).json(paginationResult);
     } catch (error) {
         logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });

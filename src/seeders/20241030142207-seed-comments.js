@@ -15,7 +15,7 @@ module.exports = {
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     );
 
-    const comments = Array.from({ length: Math.random() * 30 }).map(() => ({
+    const comments = Array.from({ length: 250 }).map(() => ({
       content: faker.lorem.sentence(),
       user_id: users[Math.floor(Math.random() * users.length)].id,
       post_id: posts[Math.floor(Math.random() * posts.length)].id,

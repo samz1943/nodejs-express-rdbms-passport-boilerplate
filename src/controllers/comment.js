@@ -67,25 +67,25 @@ exports.getPostComments = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
 
-        const query = {};
+        const include = [
+            {
+                model: User,
+                as: 'user',
+                attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
+            },
+        ];
 
-        const paginationResult = await paginate(Comment, query, page, limit);
-        const formattedComments = await Promise.all(
-            paginationResult.items.map(async (comment) => {
-                const user = await User.findByPk(comment.user_id, {
-                    attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-                });
-                return commentResponse({ ...comment.toJSON(), user });
-            })
-        );
+        // Fetch paginated comments with user data included
+        const paginationResult = await paginate(Comment, {}, page, limit, include);
+        const formattedComments = paginationResult.data.map(commentResponse);
 
-        const response = responseFormatter(200, formattedComments, 'Comments retrieved successfully', {
+        const response = {
+            data: formattedComments,
             totalItems: paginationResult.totalItems,
             totalPages: paginationResult.totalPages,
             currentPage: paginationResult.currentPage,
-        });
+        };
 
-        logger.info(response.data);
         res.status(200).json(response);
     } catch (error) {
         logger.error(`Error: ${error.message}`);
