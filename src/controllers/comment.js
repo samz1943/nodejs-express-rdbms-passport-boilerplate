@@ -6,13 +6,13 @@ const paginate = require('../utils/pagination');
 exports.createComment = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {
-        const { id } = req.params;
+        const { postId } = req.params;
         const { content } = req.body;
         const user = req.user;
 
-        const comment = await Comment.create({ content, post_id: id, user_id: user.id });
+        const comment = await Comment.create({ content, post_id: postId, user_id: user.id });
 
-        const post = await Post.findByPk(id, {
+        const post = await Post.findByPk(postId, {
             include: {
                 model: User,
                 as: 'user',
@@ -65,7 +65,11 @@ exports.getCommentById = async (req, res) => {
 exports.getPostComments = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {
+        const { postId } = req.params;
         const { page = 1, limit = 10 } = req.query;
+
+        const query = {};
+        query.post_id = postId;
 
         const include = [
             {
@@ -75,8 +79,7 @@ exports.getPostComments = async (req, res) => {
             },
         ];
 
-        // Fetch paginated comments with user data included
-        const paginationResult = await paginate(Comment, {}, page, limit, include);
+        const paginationResult = await paginate(Comment, query, page, limit, include);
         const formattedComments = paginationResult.data.map(commentResponse);
 
         const response = {

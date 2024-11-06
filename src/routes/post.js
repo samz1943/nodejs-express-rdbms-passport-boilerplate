@@ -13,6 +13,6 @@ router.get('/:postId',  authenticate, postController.getPostById);
 router.put('/:postId',  authenticate, postValidator, postMiddleware, postController.updatePost);
 router.delete('/:postId',  authenticate, postMiddleware, postController.deletePost);
 
-router.use('/:id/comment', commentRouter)
+router.use('/:postId/comment', commentRouter)
 
 module.exports = router;

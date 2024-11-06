@@ -48,28 +48,6 @@ exports.getUserById = async (req, res) => {
     }
 };
 
-exports.getUserById = async (req, res) => {
-    logger.http(`${req.method} ${req.url}`);
-    try {
-        const { userId } = req.params;
-
-        const user = await User.findByPk(userId);
-
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        const formattedUser = userResponse(user);
-        const response = responseFormatter(200, formattedUser);
-
-        logger.info(response.data);
-        res.status(200).json(response);
-    } catch (error) {
-        logger.error(`Error: ${error.message}`);
-        res.status(500).json({ error: error.message });
-    }
-};
-
 exports.getAllUsers = async (req, res) => {
     logger.http(`${req.method} ${req.url}`);
     try {

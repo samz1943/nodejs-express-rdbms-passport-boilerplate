@@ -62,8 +62,25 @@ exports.getAllPosts = async (req, res) => {
             query.title = { [Op.like]: `%${title}%` };
         }
 
-        const paginationResult = await paginate(Post, query, page, limit);
-        res.status(200).json(paginationResult);
+        const include = [
+            {
+                model: User,
+                as: 'user',
+                attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
+            },
+        ];
+
+        const paginationResult = await paginate(Post, query, page, limit, include);
+        const formattedPosts = paginationResult.data.map(postResponse);
+
+        const response = {
+            data: formattedPosts,
+            totalItems: paginationResult.totalItems,
+            totalPages: paginationResult.totalPages,
+            currentPage: paginationResult.currentPage,
+        };
+
+        res.status(200).json(response);
     } catch (error) {
         logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
