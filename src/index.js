@@ -7,6 +7,8 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const router = require('./routes/index')
 const logger = require('./utils/logger');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('../swagger');
 
 dotenv.config();
 const app = express();
@@ -27,6 +29,7 @@ app.use(limiter)
 app.use(compression())
 
 app.use('/api', router)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(port, () => {
     logger.info(`Server running on port ${port}`);
