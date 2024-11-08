@@ -4,7 +4,6 @@ import logger from '../utils/logger';
 // import Post from '../models/post';
 // import Comment from '../models/comment';
 import { commentResponse, responseFormatter } from '../utils/responseFormatter';
-import paginate from '../utils/pagination';
 import { PaginationService } from '../utils/pagination.service';
 import { AppDataSource } from '../data-source';
 import { User } from '../entities/User';
@@ -24,16 +23,6 @@ export const createComment = async (req: Request, res: Response): Promise<void> 
 
         const commentRepository = AppDataSource.getRepository(Comment);
         await commentRepository.save(comment);
-
-        // const comment = await Comment.create({ content, post_id: parseInt(postId), user_id: user.id });
-
-        // const post = await Post.findByPk(postId, {
-        //     include: {
-        //         model: User,
-        //         as: 'user',
-        //         attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-        //     }
-        // });
         
         const formattedComment = commentResponse(comment);
 
@@ -57,16 +46,6 @@ export const getCommentById = async (req: Request, res: Response): Promise<void>
             where: { id: parseInt(commentId) },
             relations: { user: true },
         });
-
-        // const comment = await Comment.findByPk(commentId, {
-        //     include: [
-        //         {
-        //             model: User,
-        //             as: 'user',
-        //             attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-        //         },
-        //     ],
-        // });
 
         if (!comment) {
             res.status(404).json({ error: 'Comment not found' });
@@ -92,11 +71,7 @@ export const getPostComments = async (req: Request, res: Response): Promise<void
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 10;
 
-        // const query: Record<string, any> = { post_id: postId };
-
         const commentRepository = AppDataSource.getRepository(Comment);
-
-        // const search = req.query.title ? `%${req.query.title}%` : undefined;
 
         const result = await PaginationService.paginate(commentRepository, {
             page,
@@ -107,26 +82,6 @@ export const getPostComments = async (req: Request, res: Response): Promise<void
         });
 
         res.status(200).json(result);
-
-        // const include = [
-        //     {
-        //         model: User,
-        //         as: 'user',
-        //         attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-        //     },
-        // ];
-
-        // const paginationResult = await paginate(Comment, { query, page, limit, include});
-        // const formattedComments = paginationResult.data.map(commentResponse);
-
-        // const response = {
-        //     data: formattedComments,
-        //     totalItems: paginationResult.totalItems,
-        //     totalPages: paginationResult.totalPages,
-        //     currentPage: paginationResult.currentPage,
-        // };
-
-        // res.status(200).json(response);
     } catch (error: any) {
         logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
@@ -144,16 +99,6 @@ export const updateComment = async (req: Request, res: Response): Promise<void> 
             where: { id: parseInt(commentId) },
             relations: { user: true },
         });
-
-        // const comment = await Comment.findByPk(commentId, {
-        //     include: [
-        //         {
-        //             model: User,
-        //             as: 'user',
-        //             attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-        //         },
-        //     ],
-        // });
 
         if (!comment) {
             res.status(404).json({ error: 'Comment not found' });
@@ -178,15 +123,6 @@ export const deleteComment = async (req: Request, res: Response): Promise<void> 
     logger.http(`${req.method} ${req.url}`);
     try {
         const { commentId } = req.params;
-
-        // const comment = await Comment.findByPk(commentId);
-
-        // if (!comment) {
-        //     res.status(404).json({ error: 'Comment not found' });
-        //     return;
-        // }
-
-        // comment.destroy();
 
         const commentRepository = AppDataSource.getRepository(Comment);
         await commentRepository.delete(commentId);

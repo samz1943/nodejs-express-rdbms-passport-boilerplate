@@ -1,7 +1,7 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { User } from '../entities/User';
-import { Post } from '../entities/Post';
-import { Comment } from '../entities/Comment';
+import { User } from '../../entities/User';
+import { Post } from '../../entities/Post';
+import { Comment } from '../../entities/Comment';
 import { DataSource } from 'typeorm';
 
 export default class CommentSeeder implements Seeder {

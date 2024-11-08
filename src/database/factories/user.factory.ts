@@ -1,5 +1,5 @@
 import { setSeederFactory } from 'typeorm-extension';
-import { User } from '../entities/User';
+import { User } from '../../entities/User';
 import bcrypt from 'bcryptjs';
 
 export const UserFactory = setSeederFactory(User, async (faker) => {

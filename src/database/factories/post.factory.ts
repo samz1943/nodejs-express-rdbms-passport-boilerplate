@@ -1,6 +1,6 @@
 
 import { setSeederFactory } from 'typeorm-extension';
-import { Post } from '../entities/Post';
+import { Post } from '../../entities/Post';
 
 export const PostFactory = setSeederFactory(Post, (faker) => {
     const post = new Post();

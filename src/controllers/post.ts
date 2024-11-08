@@ -1,10 +1,6 @@
 import { Request, Response } from 'express';
 import logger from '../utils/logger';
-// import User from '../models/user';
-// import Post from '../models/post';
-import { Op } from 'sequelize';
 import { postResponse, responseFormatter } from '../utils/responseFormatter';
-import paginate from '../utils/pagination';
 import { PaginationService } from '../utils/pagination.service';
 import { Like } from 'typeorm';
 import { AppDataSource } from '../data-source';
@@ -50,14 +46,6 @@ export const getPostById = async (req: Request, res: Response): Promise<void> =>
             relations: { user: true },
         });
 
-        // const post = await Post.findByPk(postId, {
-        //     include: {
-        //         model: User,
-        //         as: 'user',
-        //         attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-        //     }
-        // });
-
         if (!post) {
             res.status(404).json({ error: 'Post not found' });
             return;
@@ -79,31 +67,6 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
     try {
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 10;
-        // const title = req.query.title as string | undefined;
-
-        // const query: Record<string, any> = {};
-
-        // if (title) {
-        //     query.title = { [Op.like]: `%${title}%` };
-        // }
-
-        // const include = [
-        //     {
-        //         model: User,
-        //         as: 'user',
-        //         attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-        //     },
-        // ];
-
-        // const paginationResult = await paginate(Post, { query, page, limit, include });
-        // const formattedPosts = paginationResult.data.map(postResponse);
-
-        // const response = {
-        //     data: formattedPosts,
-        //     totalItems: paginationResult.totalItems,
-        //     totalPages: paginationResult.totalPages,
-        //     currentPage: paginationResult.currentPage,
-        // };
 
         const postRepository = AppDataSource.getRepository(Post);
 
@@ -136,14 +99,6 @@ export const updatePost = async (req: Request, res: Response): Promise<void> => 
             relations: { user: true },
         });
 
-        // const post = await Post.findByPk(postId, {
-        //     include: {
-        //         model: User,
-        //         as: 'user',
-        //         attributes: ['id', 'username', 'email', 'createdAt', 'updatedAt']
-        //     }
-        // });
-
         if (!post) {
             res.status(404).json({ error: 'Post not found' });
             return;
@@ -169,12 +124,9 @@ export const deletePost = async (req: Request, res: Response): Promise<void> => 
     try {
         const { postId } = req.params;
 
-        // const post = await Post.findByPk(postId);
-
         const postRepository = AppDataSource.getRepository(Post);
         await postRepository.delete(postId);
 
-        // logger.info(response.data);
         res.status(204).json();
     } catch (error: any) {
         logger.error(`Error: ${error.message}`);

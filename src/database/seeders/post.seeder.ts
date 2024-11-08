@@ -1,6 +1,6 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { User } from '../entities/User';
-import { Post } from '../entities/Post';
+import { User } from '../../entities/User';
+import { Post } from '../../entities/Post';
 import { DataSource } from 'typeorm';
 
 export default class PostSeeder implements Seeder {

@@ -1,13 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import Post from "../models/post";
-import User from '../models/user';
+import { AppDataSource } from '../data-source';
+import { User } from '../entities/User';
+import { Post } from '../entities/Post';
 
 const checkPostOwner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { postId } = req.params;
     const user = req.user as User;
 
     try {
-        const post = await Post.findByPk(postId);
+        const postRepository = AppDataSource.getRepository(Post);
+        const post = await postRepository.findOne({where: { id: parseInt(postId) }});
 
         if (!post) {
             res.status(404).json({ error: 'Post not found' });
