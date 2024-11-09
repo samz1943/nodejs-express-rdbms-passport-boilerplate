@@ -34,6 +34,11 @@ A boilerplate/starter project for quickly building Typescript RESTful APIs using
 - Run node server  
   `npm run dev`
 
+### Unit Testing
+- Replace **.env.example** to **.env.test**
+- Run test script  
+  `npm test`
+
 ### Production
 - Pack and minimize source codes  
   `npm start`
