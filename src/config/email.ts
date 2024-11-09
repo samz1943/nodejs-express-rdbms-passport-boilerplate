@@ -10,10 +10,13 @@ const transporter: Transporter = nodemailer.createTransport({
     },
 });
 
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('Error configuring email:', error);
-    }
-});
+if (process.env.NODE_ENV !== 'test') {
+    transporter.verify((error, success) => {
+        if (error) {
+            console.error('Error configuring email:', error);
+        }
+    });
+}
+
 
 export default transporter;

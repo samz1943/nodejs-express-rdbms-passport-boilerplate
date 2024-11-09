@@ -8,6 +8,9 @@ import verificationEmail from '../utils/emailTemplate';
 import { responseFormatter } from '../utils/responseFormatter';
 import { User } from '../entities/User';
 import { AppDataSource } from '../data-source';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 interface UserPayload {
   id: number;
@@ -80,7 +83,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       html: verificationEmail(username, token).html,
     };
 
-    await transporter.sendMail(mailOptions);
+    if (process.env.NODE_ENV !== 'test') {
+      await transporter.sendMail(mailOptions);
+    }
 
     const response = responseFormatter(201, null, 'User registered successfully');
 
