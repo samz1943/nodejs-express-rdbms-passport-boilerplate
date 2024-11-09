@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
+    "dev": "nodemon",
     "test": "mocha 'test/**/*.test.js'",
     "db:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create",
     "db:drop": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:drop",

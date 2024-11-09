@@ -1,29 +1,7 @@
-// Define types for the user, post, and comment objects
-interface User {
-  id: number;
-  username: string;
-  email: string;
-}
+import { Comment } from "../entities/Comment";
+import { Post } from "../entities/Post";
+import { User } from "../entities/User";
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  user: User;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface Comment {
-  id: number;
-  content: string;
-  post_id: number;
-  user: User;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// User response formatter
 export const userResponse = (user: User) => {
   return {
     id: user.id,
@@ -32,7 +10,6 @@ export const userResponse = (user: User) => {
   };
 };
 
-// Post response formatter
 export const postResponse = (post: Post) => {
   return {
     id: post.id,
@@ -44,7 +21,6 @@ export const postResponse = (post: Post) => {
   };
 };
 
-// Comment response formatter
 export const commentResponse = (comment: Comment) => {
   return {
     id: comment.id,
@@ -56,7 +32,6 @@ export const commentResponse = (comment: Comment) => {
   };
 };
 
-// Response formatter with optional data, message, and errors
 interface Response<T> {
   status: number;
   data: T;

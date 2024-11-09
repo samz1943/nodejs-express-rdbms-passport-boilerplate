@@ -1,8 +1,5 @@
 import { Request, Response } from 'express';
 import logger from '../utils/logger';
-// import User from '../models/user';
-// import Post from '../models/post';
-// import Comment from '../models/comment';
 import { commentResponse, responseFormatter } from '../utils/responseFormatter';
 import { PaginationService } from '../utils/pagination.service';
 import { AppDataSource } from '../data-source';
@@ -14,17 +11,19 @@ export const createComment = async (req: Request, res: Response): Promise<void> 
     try {
         const { postId } = req.params;
         const { content } = req.body;
-        const user = req.user as User;
+        const reqUser = req.user as User;
 
         const comment = new Comment();
         comment.content = content;
-        comment.user_id = user.id;
+        comment.user_id = reqUser.id;
         comment.post_id = parseInt(postId);
 
         const commentRepository = AppDataSource.getRepository(Comment);
         await commentRepository.save(comment);
         
-        const formattedComment = commentResponse(comment);
+        const user = await comment.user;
+        const post = await comment.post;
+        const formattedComment = commentResponse({ ...comment, user, post });
 
         const response = responseFormatter(201, formattedComment, 'Comment created successfully');
 
@@ -52,7 +51,9 @@ export const getCommentById = async (req: Request, res: Response): Promise<void>
             return;
         }
 
-        const formattedComment = commentResponse(comment);
+        const user = await comment.user;
+        const formattedComment = commentResponse({ ...comment, user });
+
         const response = responseFormatter(200, formattedComment);
 
         logger.info(response.data);
@@ -81,7 +82,17 @@ export const getPostComments = async (req: Request, res: Response): Promise<void
             orderDirection: 'DESC',
         });
 
-        res.status(200).json(result);
+        const formattedData = await Promise.all(result.data.map(async comment => {
+            const user = await comment.user;
+            return commentResponse({ ...comment, user })
+        }));
+
+        const response = {
+            ...result,
+            data: formattedData
+        };
+
+        res.status(200).json(response);
     } catch (error: any) {
         logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
@@ -108,7 +119,8 @@ export const updateComment = async (req: Request, res: Response): Promise<void> 
         comment.content = content;
         await commentRepository.save(comment);
 
-        const formattedComment = commentResponse(comment);
+        const user = await comment.user;
+        const formattedComment = commentResponse({ ...comment, user });
         const response = responseFormatter(200, formattedComment);
 
         logger.info(response.data);

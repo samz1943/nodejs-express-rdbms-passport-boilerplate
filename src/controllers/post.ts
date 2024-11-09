@@ -11,19 +11,18 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
     logger.http(`${req.method} ${req.url}`);
     try {
         const { title, content } = req.body;
-        const user = req.user as User;
+        const reqUser = req.user as User;
 
         const post = new Post();
         post.title = title;
         post.content = content;
-        post.user_id = user.id;
+        post.user_id = reqUser.id;
 
         const postRepository = AppDataSource.getRepository(Post);
         await postRepository.save(post);
-
-        // const post = await Post.create({ title, content, user_id: user.id });
         
-        const formattedPost = postResponse(post);
+        const user = await post.user;
+        const formattedPost = postResponse({ ...post, user });
 
         const response = responseFormatter(201, formattedPost, 'Post created successfully');
 
@@ -51,7 +50,8 @@ export const getPostById = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
-        const formattedPost = postResponse(post);
+        const user = await post.user;
+        const formattedPost = postResponse({ ...post, user });
         const response = responseFormatter(200, formattedPost);
 
         logger.info(response.data);
@@ -80,7 +80,17 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
             orderDirection: 'DESC',
         });
 
-        res.status(200).json(result);
+        const formattedData = await Promise.all(result.data.map(async post => {
+            const user = await post.user;
+            return postResponse({ ...post, user })
+        }));
+
+        const response = {
+            ...result,
+            data: formattedData
+        };
+
+        res.status(200).json(response);
     } catch (error: any) {
         logger.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
@@ -108,7 +118,8 @@ export const updatePost = async (req: Request, res: Response): Promise<void> => 
         post.content = content;
         await postRepository.save(post);
 
-        const formattedPost = postResponse(post);
+        const user = await post.user;
+        const formattedPost = postResponse({ ...post, user });
         const response = responseFormatter(200, formattedPost);
 
         logger.info(response.data);

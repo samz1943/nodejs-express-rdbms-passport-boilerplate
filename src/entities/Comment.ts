@@ -26,7 +26,7 @@ export class Comment {
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.posts, { lazy: true })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 }
