@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-interface DBConfig {
+export interface DBConfig {
   username: string;
   password: string;
   database: string;

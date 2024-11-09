@@ -24,8 +24,8 @@ app.use(helmet());
 app.use(passport.initialize());
 
 AppDataSource.initialize().then(async () => {
-  await AppDataSource.synchronize(true);
-  await runSeeders(AppDataSource);
+  // await AppDataSource.synchronize(true);
+  // await runSeeders(AppDataSource);
   // process.exit();
 }).catch(error => console.log(error));
 

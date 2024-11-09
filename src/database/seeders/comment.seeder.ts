@@ -11,7 +11,7 @@ export default class CommentSeeder implements Seeder {
 
     const postRepository =  dataSource.getRepository(Post);
     const post = await postRepository.find();
-    const numComments = 50;
+    const numComments = 150;
 
     for (let i = 0; i < numComments; i++) {
       const commentFactory = await factoryManager.get(Comment);

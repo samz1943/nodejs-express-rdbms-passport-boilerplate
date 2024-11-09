@@ -1,23 +1,59 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
 export class CreatePostTable1731054640626 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
-            CREATE TABLE \`post\` (
-              \`id\` INT AUTO_INCREMENT PRIMARY KEY,
-              \`title\` VARCHAR(255) NOT NULL,
-              \`content\` TEXT NOT NULL,
-              \`user_id\` INT,
-              \`createdAt\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              \`updatedAt\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-              FOREIGN KEY (\`user_id\`) REFERENCES \`user\`(\`id\`) ON DELETE CASCADE
-            );
-          `);
+        await queryRunner.createTable(
+            new Table({
+                name: 'post',
+                columns: [
+                    {
+                        name: "id",
+                        type: "int",
+                        isPrimary: true,
+                        isGenerated: true,
+                        generationStrategy: 'increment',
+                    },
+                    {
+                        name: "user_id",
+                        type: "int",
+                    },
+                    {
+                        name: "title",
+                        type: "varchar",
+                    },
+                    {
+                        name: "content",
+                        type: "text",
+                    },
+                    {
+                        name: "createdAt",
+                        type: "timestamp",
+                        default: "now()",
+                    },
+                    {
+                        name: "updatedAt",
+                        type: "timestamp",
+                        default: "now()",
+                    },
+                ]
+            }),
+            true,
+        )
+
+        await queryRunner.createForeignKey(
+            "post",
+            new TableForeignKey({
+                columnNames: ["user_id"],
+                referencedColumnNames: ["id"],
+                referencedTableName: "user",
+                onDelete: "CASCADE",
+            }),
+        )
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE \`post\`;`);
+        await queryRunner.dropTable("post")
     }
 
 }

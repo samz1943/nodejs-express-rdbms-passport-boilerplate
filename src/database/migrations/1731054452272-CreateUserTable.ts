@@ -1,25 +1,66 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
 export class CreateUserTable1731054452272 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
-            CREATE TABLE \`user\` (
-              \`id\` INT AUTO_INCREMENT PRIMARY KEY,
-              \`username\` VARCHAR(255) UNIQUE NOT NULL,
-              \`email\` VARCHAR(255) UNIQUE NOT NULL,
-              \`password\` VARCHAR(255) NOT NULL,
-              \`isVerified\` BOOLEAN DEFAULT true,
-              \`verificationToken\` VARCHAR(255) NULL,
-              \`tokenExpiration\` DATETIME NOT NULL,
-              \`createdAt\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              \`updatedAt\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            );
-          `);
+        await queryRunner.createTable(
+            new Table({
+                name: 'user',
+                columns: [
+                    {
+                        name: "id",
+                        type: "int",
+                        isPrimary: true,
+                        isGenerated: true,
+                        generationStrategy: 'increment',
+                    },
+                    {
+                        name: "username",
+                        type: "varchar",
+                        isUnique: true,
+                    },
+                    {
+                        name: "email",
+                        type: "varchar",
+                        isUnique: true,
+                    },
+                    {
+                        name: "password",
+                        type: "varchar",
+                    },
+                    {
+                        name: "isVerified",
+                        type: "varchar",
+                        default: false,
+                    },
+                    {
+                        name: "verificationToken",
+                        type: "varchar",
+                        isNullable: true,
+                    },
+                    {
+                        name: "tokenExpiration",
+                        type: "timestamp",
+                        isNullable: true,
+                    },
+                    {
+                        name: "createdAt",
+                        type: "timestamp",
+                        default: "now()",
+                    },
+                    {
+                        name: "updatedAt",
+                        type: "timestamp",
+                        default: "now()",
+                    },
+                ]
+            }),
+            true,
+        )
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE \`user\`;`);
+        await queryRunner.dropTable("user")
     }
 
 }

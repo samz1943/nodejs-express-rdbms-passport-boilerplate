@@ -1,24 +1,68 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
 export class CreateCommentTable1731054650479 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
-            CREATE TABLE \`comment\` (
-              \`id\` INT AUTO_INCREMENT PRIMARY KEY,
-              \`content\` TEXT NOT NULL,
-              \`post_id\` INT,
-              \`user_id\` INT,
-              \`createdAt\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              \`updatedAt\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-              FOREIGN KEY (\`post_id\`) REFERENCES \`post\`(\`id\`) ON DELETE CASCADE,
-              FOREIGN KEY (\`user_id\`) REFERENCES \`user\`(\`id\`) ON DELETE CASCADE
-            );
-          `);
+        await queryRunner.createTable(
+            new Table({
+                name: 'comment',
+                columns: [
+                    {
+                        name: "id",
+                        type: "int",
+                        isPrimary: true,
+                        isGenerated: true,
+                        generationStrategy: 'increment',
+                    },
+                    {
+                        name: "user_id",
+                        type: "int",
+                    },
+                    {
+                        name: "post_id",
+                        type: "int",
+                    },
+                    {
+                        name: "content",
+                        type: "text",
+                    },
+                    {
+                        name: "createdAt",
+                        type: "timestamp",
+                        default: "now()",
+                    },
+                    {
+                        name: "updatedAt",
+                        type: "timestamp",
+                        default: "now()",
+                    },
+                ]
+            })
+        )
+
+        await queryRunner.createForeignKey(
+            "comment",
+            new TableForeignKey({
+                columnNames: ["user_id"],
+                referencedColumnNames: ["id"],
+                referencedTableName: "user",
+                onDelete: "CASCADE",
+            }),
+        )
+
+        await queryRunner.createForeignKey(
+            "comment",
+            new TableForeignKey({
+                columnNames: ["post_id"],
+                referencedColumnNames: ["id"],
+                referencedTableName: "post",
+                onDelete: "CASCADE",
+            }),
+        )
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE \`comment\`;`);
+        await queryRunner.dropTable("comment")
     }
 
 }
