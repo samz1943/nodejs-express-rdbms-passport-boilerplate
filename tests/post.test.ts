@@ -2,6 +2,7 @@ import tokenStore from './testStore';
 import app from '../src/index';
 import request from 'supertest';
 import { AppDataSource } from '../src/data-source';
+import { Post } from '../src/entities/Post';
 
 beforeAll(async () => {
   await AppDataSource.initialize();
@@ -69,17 +70,15 @@ describe('/POST Post', () => {
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('message', 'Post created successfully');
 
-    // Uncomment and use this if database validation is needed
-    /*
-    const post = await db.Post.findOne({
+    const postRepository = AppDataSource.getRepository(Post);
+    const post = await postRepository.findOne({
       where: { title: 'test create', content: 'test create post successful' }
-    });
+  });
 
     expect(post).not.toBeNull();
     expect(post).toHaveProperty('title', 'test create');
     expect(post).toHaveProperty('content', 'test create post successful');
 
-    await post.destroy();  // Clean up the test data
-    */
+    await postRepository.delete(post!);
   });
 });
