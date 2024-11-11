@@ -16,18 +16,17 @@ services:
       - db
 
   db:
-    image: mysql:8.0
+    image: mongo
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_DATABASE}
     ports:
-      - "${DB_PORT}:3306"
+      - "${DB_PORT}:27017"
     env_file:
       - .env
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/data/db
 
 volumes:
   db_data:

@@ -1,12 +1,11 @@
 # RESTful API Node Server Boilerplate Typescript Version
-A boilerplate/starter project for quickly building Typescript RESTful APIs using Node.js, Express and MySQL.
+A boilerplate/starter project for quickly building Typescript RESTful APIs using Node.js, Express and Mongo.
 
 
 ## Features
 
 - Express
-- MySQL
-- TypeORM
+- Mongo
 - Helmet
 - Bcrypt
 - Joi
@@ -15,7 +14,7 @@ A boilerplate/starter project for quickly building Typescript RESTful APIs using
 - Rate-Limit
 - Logger
 - Nodemailer
-- Mocha
+- Jest
 
 ## Installation
 
@@ -25,9 +24,8 @@ A boilerplate/starter project for quickly building Typescript RESTful APIs using
 - Prepare database (create tables and populate)
 
 ## Initialize  database
-- Create database and run migration
 - Create seeding for data  
-  `npm run db:refresh`
+  `npm run seed:run`
 
 ## Run the node server
 ### Development
