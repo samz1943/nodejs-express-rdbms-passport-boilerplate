@@ -1,10 +1,9 @@
 import tokenStore from './testStore';
 import app from '../src/index';
+import { mongoose } from '../src/config/database';
 import request from 'supertest';
-import { AppDataSource } from '../src/data-source';
 
 beforeAll(async () => {
-  await AppDataSource.initialize();
   const token = tokenStore.getUserToken();
   if (!token) {
     const res = await request(app)
@@ -16,8 +15,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await mongoose.connection.close();
   app.close();
-  await AppDataSource.destroy();
 });
 
 describe('/GET User', () => {
@@ -33,7 +32,7 @@ describe('/GET User', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
     res.body.data.forEach((user: any) => {
       expect(user).toHaveProperty('id');
-      expect(typeof user.id).toBe('number');
+      expect(typeof user.id).toBe('string');
       expect(user).toHaveProperty('username');
       expect(typeof user.username).toBe('string');
       expect(user).toHaveProperty('email');

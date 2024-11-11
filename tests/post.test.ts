@@ -1,11 +1,10 @@
 import tokenStore from './testStore';
 import app from '../src/index';
+import { mongoose } from '../src/config/database';
 import request from 'supertest';
-import { AppDataSource } from '../src/data-source';
-import { Post } from '../src/entities/Post';
+import Post from '../src/models/Post';
 
 beforeAll(async () => {
-  await AppDataSource.initialize();
   const token = tokenStore.getUserToken();
   if (!token) {
     const res = await request(app)
@@ -17,8 +16,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await mongoose.connection.close();
   app.close();
-  await AppDataSource.destroy();
 });
 
 describe('/GET Post', () => {
@@ -34,7 +33,7 @@ describe('/GET Post', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
     res.body.data.forEach((post: any) => {
       expect(post).toHaveProperty('id');
-      expect(typeof post.id).toBe('number');
+      expect(typeof post.id).toBe('string');
       expect(post).toHaveProperty('title');
       expect(typeof post.title).toBe('string');
       expect(post).toHaveProperty('content');
@@ -44,7 +43,7 @@ describe('/GET Post', () => {
       expect(post).toHaveProperty('publishedBy');
       expect(typeof post.publishedBy).toBe('object');
       expect(post.publishedBy).toHaveProperty('id');
-      expect(typeof post.publishedBy.id).toBe('number');
+      expect(typeof post.publishedBy.id).toBe('string');
       expect(post.publishedBy).toHaveProperty('username');
       expect(typeof post.publishedBy.username).toBe('string');
       expect(post.publishedBy).toHaveProperty('email');
@@ -60,25 +59,25 @@ describe('/GET Post', () => {
 });
 
 describe('/POST Post', () => {
-  it('it should create a post', async () => {
+  it('it should create a post and confirm its presence in the database', async () => {
     const token = tokenStore.getUserToken();
+    
+    const postData = { title: 'test create', content: 'test create post successful' };
+
     const res = await request(app)
       .post('/api/post')
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: 'test create', content: 'test create post successful' });
+      .send(postData);
 
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('message', 'Post created successfully');
 
-    const postRepository = AppDataSource.getRepository(Post);
-    const post = await postRepository.findOne({
-      where: { title: 'test create', content: 'test create post successful' }
-  });
+    const post = await Post.findOne({ title: postData.title, content: postData.content });
 
     expect(post).not.toBeNull();
-    expect(post).toHaveProperty('title', 'test create');
-    expect(post).toHaveProperty('content', 'test create post successful');
+    expect(post).toHaveProperty('title', postData.title);
+    expect(post).toHaveProperty('content', postData.content);
 
-    await postRepository.delete(post!);
+    await Post.deleteOne({ _id: post?._id });
   });
 });

@@ -1,18 +1,14 @@
 import { Request, Response } from 'express';
 import logger from '../utils/logger';
 import { responseFormatter, userResponse } from '../utils/responseFormatter';
-import { PaginationService } from '../utils/pagination.service';
-import { AppDataSource } from '../data-source';
-import { User } from '../entities/User';
-import { Like } from 'typeorm';
+import User from '../models/User';
 
 export const getSelf = async (req: Request, res: Response): Promise<void> => {
   logger.http(`${req.method} ${req.url}`);
   try {
-    const reqUser = req.user as User;
+    const reqUser = req.user as any;
 
-    const userRepository = AppDataSource.getRepository(User)
-    const user = await userRepository.findOneByOrFail({ id: reqUser.id });
+    const user = await User.findById(reqUser.id);
     const formattedUser = userResponse(user);
     const response = responseFormatter(200, formattedUser);
 
@@ -29,8 +25,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   try {
     const { userId } = req.params;
 
-    const userRepository = AppDataSource.getRepository(User)
-    const user = await userRepository.findOneByOrFail({ id: parseInt(userId) });
+    const user = await User.findById(userId );
     const formattedUser = userResponse(user);
     const response = responseFormatter(200, formattedUser);
 
@@ -48,23 +43,23 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const userRepository = AppDataSource.getRepository(User);
+    const search = req.query.username ? { username: { $regex: req.query.username, $options: 'i' } } : {};
 
-    const search = req.query.username ? `%${req.query.username}%` : undefined;
+    const users = await User.find(search)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })  // Sort by createdAt descending
+      .exec();
 
-    const result = await PaginationService.paginate(userRepository, {
-        page,
-        limit,
-        where: search ? { username: Like(search) } : {},
-        orderBy: 'createdAt',
-        orderDirection: 'DESC',
-    });
+    const totalCount = await User.countDocuments(search).exec();
 
-    const formattedData = result.data.map(user => userResponse(user));
+    const formattedData = users.map((user) => userResponse(user));
 
     const response = {
-      ...result,
-      data: formattedData
+      data: formattedData,
+      totalCount,
+      page,
+      limit,
     };
 
     res.status(200).json(response);
@@ -80,11 +75,14 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     const { userId } = req.params;
     const { username } = req.body;
 
-    const userRepository = AppDataSource.getRepository(User)
-    const user = await userRepository.findOneByOrFail({ id: parseInt(userId) })
+    const user = await User.findById(userId).exec();
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
 
     user.username = username;
-    await userRepository.save(user!);
+    await user.save();
 
     const formattedUser = userResponse(user);
     const response = responseFormatter(200, formattedUser);
@@ -102,8 +100,11 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
   try {
     const { userId } = req.params;
 
-    const userRepository = AppDataSource.getRepository(User);
-    await userRepository.delete(userId);
+    const user = await User.findByIdAndDelete(userId).exec();
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
 
     res.status(204).json();
   } catch (error: any) {

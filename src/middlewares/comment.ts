@@ -1,22 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppDataSource } from '../data-source';
-import { User } from '../entities/User';
-import { Comment } from '../entities/Comment';
+import Comment from '../models/Comment';
 
 const checkCommentOwner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { commentId } = req.params;
-    const user = req.user as User;
+    const user = req.user as any;
 
     try {
-        const commentRepository = AppDataSource.getRepository(Comment);
-        const comment = await commentRepository.findOne({where: { id: parseInt(commentId) }});
+        const comment = await Comment.findById(commentId);
 
         if (!comment) {
             res.status(404).json({ error: 'Comment not found' });
             return;
         }
 
-        if (comment.user_id !== user.id) {
+        if (comment.author !== user._id) {
             res.status(403).json({ error: 'You are not authorized to perform this action' });
             return;
         }

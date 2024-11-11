@@ -1,32 +1,28 @@
-import { Comment } from "../entities/Comment";
-import { Post } from "../entities/Post";
-import { User } from "../entities/User";
-
-export const userResponse = (user: User) => {
+export const userResponse = (user: any) => {
   return {
-    id: user.id,
+    id: user._id,
     username: user.username,
     email: user.email,
   };
 };
 
-export const postResponse = (post: Post) => {
+export const postResponse = (post: any) => {
   return {
-    id: post.id,
+    id: post._id,
     title: post.title,
     content: post.content,
-    publishedBy: userResponse(post.user),
+    publishedBy: userResponse(post.author),
     createdAt: post.createdAt.toISOString(),
     updatedAt: post.updatedAt.toISOString(),
   };
 };
 
-export const commentResponse = (comment: Comment) => {
+export const commentResponse = (comment: any) => {
   return {
-    id: comment.id,
+    id: comment._id,
     content: comment.content,
-    post_id: comment.post_id,
-    commentBy: userResponse(comment.user),
+    post_id: comment.post,
+    commentBy: userResponse(comment.author),
     createdAt: comment.createdAt.toISOString(),
     updatedAt: comment.updatedAt.toISOString(),
   };

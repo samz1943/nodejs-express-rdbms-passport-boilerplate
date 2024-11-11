@@ -1,15 +1,11 @@
 import tokenStore from './testStore';
 import app from '../src/index';
+import { mongoose } from '../src/config/database';
 import request from 'supertest';
-import { AppDataSource } from '../src/data-source';
-
-beforeAll(async () => {
-  await AppDataSource.initialize();
-});
 
 afterAll(async () => {
+  await mongoose.connection.close();
   app.close();
-  await AppDataSource.destroy();
 });
 
 describe('/Post login', () => {

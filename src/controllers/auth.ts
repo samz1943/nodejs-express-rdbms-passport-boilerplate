@@ -6,8 +6,7 @@ import logger from '../utils/logger';
 import transporter from '../config/email';
 import verificationEmail from '../utils/emailTemplate';
 import { responseFormatter } from '../utils/responseFormatter';
-import { User } from '../entities/User';
-import { AppDataSource } from '../data-source';
+import User, { IUser } from '../models/User';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -17,13 +16,13 @@ interface UserPayload {
   email: string;
 }
 
-const generateAccessToken = (user: UserPayload): string => {
+const generateAccessToken = (user: IUser): string => {
     return jwt.sign({ id: user.id, email: user.email }, config.jwt_secret, {
       expiresIn: config.access_token_expiry,
     });
   };
   
-  const generateRefreshToken = (user: UserPayload): string => {
+  const generateRefreshToken = (user: IUser): string => {
     return jwt.sign({ id: user.id }, config.jwt_refresh_secret, {
       expiresIn: config.refresh_token_expiry,
     });
@@ -34,8 +33,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
         const { email, password } = req.body;
 
-        const userRepository = AppDataSource.getRepository(User);
-        const user = await userRepository.findOneBy({ email: email });
+        const user = await User.findOne({ email: email }).exec();
         if (!user) {
           res.status(401).json({ message: 'User not found' });
           return;
@@ -65,15 +63,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const token = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedToken = await bcrypt.hash(token, 10);
 
-    const user = new User();
-    user.username = username;
-    user.email = email;
-    user.password = hashedPassword;
-    user.verificationToken = hashedToken;
-    user.tokenExpiration = new Date(Date.now() + 3600000);
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword,
+      verification_token: hashedToken,
+      token_expiration: new Date(Date.now() + 3600000),
+    });
 
-    const userRepository = AppDataSource.getRepository(User);
-    await userRepository.save(user);
+    await user.save();
 
     const mailOptions = {
       from: '"My App" <your-email@gmail.com>',
@@ -102,22 +100,21 @@ export const verify = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, token } = req.body;
 
-    const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOneBy({ email: email });
+    const user = await User.findOne({ email: email });
     if (!user) {
       res.status(401).json({ message: 'User not found' });
       return;
     };
 
-    const isMatch = await bcrypt.compare(token, user.verificationToken as string);
+    const isMatch = await bcrypt.compare(token, user.verification_token as string);
     if (!isMatch) {
       res.status(401).json({ message: 'Incorrect token' });
       return;
     }
 
-    user.isVerified = true;
-    user.verificationToken = null,
-    await userRepository.save(user);
+    user.is_verified = true;
+    user.verification_token = null,
+    await user.save();
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);

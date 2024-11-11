@@ -10,8 +10,7 @@ import logger from './utils/logger';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from '../swagger';
 import { createServer } from 'http';
-import { AppDataSource } from "./data-source"
-import { runSeeders } from 'typeorm-extension';
+import { connectDB } from './config/database';
 
 dotenv.config();
 
@@ -24,13 +23,7 @@ app.use(cors());
 app.use(helmet());
 app.use(passport.initialize());
 
-if (process.env.NODE_ENV !== 'test') {
-  AppDataSource.initialize().then(async () => {
-    // await AppDataSource.synchronize(true);
-    // await runSeeders(AppDataSource);
-    // process.exit();
-  }).catch(error => console.log(error));
-}
+connectDB();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -46,14 +39,8 @@ app.use(compression());
 app.use('/api', router);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Start server
-// app.listen(port, () => {
-//   logger.info(`Server running on port ${port}`);
-// });
-
 const server = createServer(app);
 
-// Start the server
 server.listen(port, () => {
   logger.info(`Server running on port ${port}`);
 });

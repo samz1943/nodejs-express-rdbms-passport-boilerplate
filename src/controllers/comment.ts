@@ -1,29 +1,25 @@
 import { Request, Response } from 'express';
 import logger from '../utils/logger';
 import { commentResponse, responseFormatter } from '../utils/responseFormatter';
-import { PaginationService } from '../utils/pagination.service';
-import { AppDataSource } from '../data-source';
-import { User } from '../entities/User';
-import { Comment } from '../entities/Comment';
+import Comment from '../models/Comment';
 
 export const createComment = async (req: Request, res: Response): Promise<void> => {
     logger.http(`${req.method} ${req.url}`);
     try {
         const { postId } = req.params;
         const { content } = req.body;
-        const reqUser = req.user as User;
+        const reqUser = req.user as any;
 
-        const comment = new Comment();
-        comment.content = content;
-        comment.user_id = reqUser.id;
-        comment.post_id = parseInt(postId);
+        const comment = new Comment({
+            content,
+            author: reqUser._id,
+            post: postId,
+        });
 
-        const commentRepository = AppDataSource.getRepository(Comment);
-        await commentRepository.save(comment);
-        
-        const user = await comment.user;
-        const post = await comment.post;
-        const formattedComment = commentResponse({ ...comment, user, post });
+        await comment.save();
+        await comment.populate('author');
+
+        const formattedComment = commentResponse(comment);
 
         const response = responseFormatter(201, formattedComment, 'Comment created successfully');
 
@@ -40,19 +36,14 @@ export const getCommentById = async (req: Request, res: Response): Promise<void>
     try {
         const { commentId } = req.params;
 
-        const commentRepository = AppDataSource.getRepository(Comment);
-        const comment = await commentRepository.findOne({
-            where: { id: parseInt(commentId) },
-            relations: { user: true },
-        });
+        const comment = await Comment.findById(commentId).populate('author');
 
         if (!comment) {
             res.status(404).json({ error: 'Comment not found' });
             return;
         }
 
-        const user = await comment.user;
-        const formattedComment = commentResponse({ ...comment, user });
+        const formattedComment = commentResponse(comment);
 
         const response = responseFormatter(200, formattedComment);
 
@@ -72,24 +63,22 @@ export const getPostComments = async (req: Request, res: Response): Promise<void
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 10;
 
-        const commentRepository = AppDataSource.getRepository(Comment);
+        const comments = await Comment.find()
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: -1 })  // Sort by createdAt descending
+        .populate('author')
+        .exec();
 
-        const result = await PaginationService.paginate(commentRepository, {
-            page,
-            limit,
-            where: { post_id: postId },
-            orderBy: 'createdAt',
-            orderDirection: 'DESC',
-        });
+        const totalCount = await Comment.countDocuments().exec();
 
-        const formattedData = await Promise.all(result.data.map(async comment => {
-            const user = await comment.user;
-            return commentResponse({ ...comment, user })
-        }));
+        const formattedData = comments.map((comment) => commentResponse(comment));
 
         const response = {
-            ...result,
-            data: formattedData
+            data: formattedData,
+            totalCount,
+            page,
+            limit,
         };
 
         res.status(200).json(response);
@@ -105,11 +94,7 @@ export const updateComment = async (req: Request, res: Response): Promise<void> 
         const { commentId } = req.params;
         const { content } = req.body;
 
-        const commentRepository = AppDataSource.getRepository(Comment);
-        const comment = await commentRepository.findOne({
-            where: { id: parseInt(commentId) },
-            relations: { user: true },
-        });
+        const comment = await Comment.findById(commentId).populate('author');
 
         if (!comment) {
             res.status(404).json({ error: 'Comment not found' });
@@ -117,10 +102,9 @@ export const updateComment = async (req: Request, res: Response): Promise<void> 
         }
 
         comment.content = content;
-        await commentRepository.save(comment);
+        await comment.save();
 
-        const user = await comment.user;
-        const formattedComment = commentResponse({ ...comment, user });
+        const formattedComment = commentResponse(comment);
         const response = responseFormatter(200, formattedComment);
 
         logger.info(response.data);
@@ -136,10 +120,12 @@ export const deleteComment = async (req: Request, res: Response): Promise<void> 
     try {
         const { commentId } = req.params;
 
-        const commentRepository = AppDataSource.getRepository(Comment);
-        await commentRepository.delete(commentId);
+        const comment = await Comment.findByIdAndDelete(commentId).exec();
+        if (!comment) {
+            res.status(404).json({ message: 'Comment not found' });
+            return;
+        }
 
-        // logger.info(response.data);
         res.status(204).json();
     } catch (error: any) {
         logger.error(`Error: ${error.message}`);

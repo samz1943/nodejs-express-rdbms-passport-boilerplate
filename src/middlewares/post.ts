@@ -1,22 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppDataSource } from '../data-source';
-import { User } from '../entities/User';
-import { Post } from '../entities/Post';
+import Post from '../models/Post';
 
 const checkPostOwner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { postId } = req.params;
-    const user = req.user as User;
+    const user = req.user as any;
 
     try {
-        const postRepository = AppDataSource.getRepository(Post);
-        const post = await postRepository.findOne({where: { id: parseInt(postId) }});
+        const post = await Post.findById(postId);
 
         if (!post) {
             res.status(404).json({ error: 'Post not found' });
             return;
         }
 
-        if (post.user_id !== user.id) {
+        if (post.author !== user._id) {
             res.status(403).json({ error: 'You are not authorized to perform this action' });
             return;
         }

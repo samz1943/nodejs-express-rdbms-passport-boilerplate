@@ -100,7 +100,7 @@ router.get('/self', authenticate, userController.getSelf);
  *                   type: string
  *                   example: "Unauthorized access - invalid token."
  */
-router.get('/', userController.getAllUsers);
+router.get('/', authenticate, userController.getAllUsers);
 
 /**
  * @swagger
